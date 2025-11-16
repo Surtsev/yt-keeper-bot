@@ -1,0 +1,11 @@
+[project]
+name = "yt-keeper-bot"
+version = "0.1.0"
+description = "Telegram bot for storing videos from YouTube. The main functions of the project are to add, display, and delete. The bot is written in Python."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "aiogram>=3.22.0",
+    "dotenv>=0.9.9",
+    "fastapi>=0.121.2",
+]
