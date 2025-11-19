@@ -18,8 +18,11 @@ async def add_video(url: str):
     return {"message": "Видео добавлено", "video": video}
 
 
-@api.delete(f"/videos/{id}")
+@api.delete("/videos/{id}")
 async def delete_video(id: int):
     global videos
-    videos = [video for video in videos if video["id"] != id]
-    return {"message": "Видео удалено"}
+    for video in videos:
+        if videos[id] == video:
+            videos.remove(video)
+            return {"message": "Видео успешно удалено."}
+    return {"message": "Видео не получилось удалить."}

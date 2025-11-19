@@ -1,3 +1,5 @@
+import traceback
+
 import httpx
 from aiogram import Router, types
 from aiogram.filters.command import Command
@@ -21,22 +23,27 @@ async def cmd_start(message: types.Message):
 
 @router.message(Command("delete"))
 async def cmd_delete(message: types.Message):
-    args = message.text.split(maxsplit=1)
+    args = message.text.split()
     if len(args) < 2 or len(args) > 2:
         await message.answer("Используйте /delete <id>")
         return
+    video_id = int(args[1]) - 1
     try:
         async with httpx.AsyncClient() as client:
-            response = await client.delete(f"{URL}/videos/{id}")
+            response = await client.delete(f"{URL}/videos/{video_id}")
             data = response.json()
-        await message.answer(f"✅ {data['message']}")
-    except Exception as e:
-        await message.answer(f"❌ Ошибка: {e}")
+            await message.answer(f"✅ {data['message']}")
+    except Exception:
+        error_text = traceback.format_exc()
+        with open("error.log", "w") as f:
+            f.write(error_text)
+        await message.answer("Произошла ошибка, подробности в лог-файле.")
 
 
 @router.message(Command("add"))
 async def cmd_add(message: types.Message):
-    args = message.text.split(maxsplit=1)
+    args = message.text.split()
+    print(args)
     if len(args) < 2 or len(args) > 2:
         await message.answer("Используйте /add <URL>")
         return
@@ -46,8 +53,13 @@ async def cmd_add(message: types.Message):
             response = await client.post(f"{URL}/videos", params={"url": url})
         data = response.json()
         await message.answer(f"✅ {data['message']}")
-    except Exception as e:
-        await message.answer(f"❌ Ошибка: {e}")
+        # except Exception as e:
+        # await message.answer(f"❌ Ошибка: {e}")
+    except Exception:
+        error_text = traceback.format_exc()
+        with open("error.log", "w") as f:
+            f.write(error_text)
+        await message.answer("Произошла ошибка, подробности в лог-файле.")
 
 
 @router.message(Command("list"))
