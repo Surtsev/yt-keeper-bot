@@ -1,5 +1,0 @@
-Traceback (most recent call last):
-  File "/home/surtsev/Projects/yt-keeper-bot/bot/handlers.py", line 35, in cmd_delete
-    await message.answer(f"✅ {data['message']}")
-                               ~~~~^^^^^^^^^^^
-KeyError: 'message'
