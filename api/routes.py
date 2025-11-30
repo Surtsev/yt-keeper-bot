@@ -20,7 +20,8 @@ api = FastAPI(lifespan=lifespan)
 @api.get("/videos")
 async def get_videos(session: AsyncSession = Depends(get_session)):
     result = await session.execute(select(Video))
-    return result.scalars().all()
+    videos = result.scalars().all()
+    return {"videos": [{"id": v.id, "url": v.url} for v in videos]}
 
 
 @api.post("/videos")
@@ -41,9 +42,10 @@ async def add_video(url: str, session: AsyncSession = Depends(get_session)):
 @api.delete("/videos/{id}")
 async def delete_video(id: int, session: AsyncSession = Depends(get_session)):
     result = await session.execute(select(Video).where(Video.id == id))
-    video = result.scalars().all()
+    video = result.scalars().first()
     if not video:
-        raise HTTPException(status_code=404, detail="Cannot find video with that ID")
-    await session.delete(video)
-    await session.commit()
+        raise HTTPException(status_code=404, detail="Video not found")
+
+    await session.delete(video)  # Удаляем
+    await session.commit()  # Коммитим ПОСЛЕ удаления
     return {"message": "Видео удалено"}

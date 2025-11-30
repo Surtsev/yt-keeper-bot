@@ -6,6 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 from sqlalchemy.orm import declarative_base
 
 DB_URL = os.getenv("DB_URL")
+if DB_URL is None:
+    raise ValueError("DB_URL не обьявлена в окружении")
 
 engine = create_async_engine(DB_URL, echo=False)
 AsyncSessionLocal: Callable[..., AsyncSession] = async_sessionmaker(
