@@ -9,4 +9,6 @@ if BOT_TOKEN is None:
     raise ValueError("Не найден токен бота")
 URL = os.getenv("URL")
 if URL is None:
-    raise ValueError("Не найден url сервера")
+    raise ValueError("Не найден URL сервера")
+if DB_URL is None:
+    raise ValueError("Не найден URL базы данных")

@@ -6,11 +6,16 @@ from aiogram.filters.command import Command
 
 from config import URL
 
+ALLOWED_USER_ID = "1378137303"
+
 router = Router()
 
 
 @router.message(Command("start"))
 async def cmd_start(message: types.Message):
+    if message.from_user.id != ALLOWED_USER_ID:
+        await message.answer("Доступ закрыт.")
+        return
     await message.answer(
         """
         Основные команды:
@@ -23,7 +28,10 @@ async def cmd_start(message: types.Message):
 
 @router.message(Command("delete"))
 async def cmd_delete(message: types.Message):
-    args = message.text.split()
+    if message.from_user.id != ALLOWED_USER_ID:
+        await message.answer("Доступ закрыт.")
+        return
+    args = message.text.split(maxsplit=1)
     if len(args) < 2 or len(args) > 2:
         await message.answer("Используйте /delete <id>")
         return
@@ -42,7 +50,10 @@ async def cmd_delete(message: types.Message):
 
 @router.message(Command("add"))
 async def cmd_add(message: types.Message):
-    args = message.text.split()
+    if message.from_user.id != ALLOWED_USER_ID:
+        await message.answer("Доступ закрыт.")
+        return
+    args = message.text.split(maxsplit=1)
     print(args)
     if len(args) < 2 or len(args) > 2:
         await message.answer("Используйте /add <URL>")
@@ -64,6 +75,9 @@ async def cmd_add(message: types.Message):
 
 @router.message(Command("list"))
 async def cmd_list(message: types.Message):
+    if message.from_user.id != ALLOWED_USER_ID:
+        await message.answer("Доступ закрыт.")
+        return
     try:
         async with httpx.AsyncClient() as client:
             response = await client.get(f"{URL}/videos")
