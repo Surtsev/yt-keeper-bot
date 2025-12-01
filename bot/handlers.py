@@ -35,10 +35,10 @@ async def cmd_delete(message: types.Message):
     if len(args) < 2 or len(args) > 2:
         await message.answer("Используйте /delete <id>")
         return
-    video_id = int(args[1])
+    video_pos = int(args[1])
     try:
         async with httpx.AsyncClient() as client:
-            response = await client.delete(f"{URL}/videos/{video_id}")
+            response = await client.delete(f"{URL}/videos/{video_pos}")
             print(f"Status: {response.status_code}")  # Добавь это
             print(f"Response: {response.text}")  # И это
             if response.status_code != 200:
@@ -93,9 +93,8 @@ async def cmd_list(message: types.Message):
         if not videos:
             await message.answer("Видео не найдены или не добавлен ни один.")
             return
-        text = "Ваши видео\n"
+        await message.answer("Ваши видео:")
         for video in videos:
-            text += f"ID: {video['id']} - {video['url']}\n\n"
-        await message.answer(text)
+            await message.answer(f"#: {video['#']} - {video['url']}")
     except Exception as e:
         await message.answer(f"❌ Ошибка: {e}")
