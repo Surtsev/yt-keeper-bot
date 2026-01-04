@@ -31,7 +31,7 @@ services:
   api:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: ./Dockerfile
     container_name: ytkeeper_api
     environment:
       DB_USER: ${DB_USER}
@@ -42,9 +42,6 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    volumes:
-      - .:/app
-      - /app/__pycache__
     networks:
       - ytkeeper_network
     restart: unless-stopped
