@@ -1,13 +1,13 @@
 import os
+from config import DB_URL
 from typing import AsyncGenerator, Callable
 
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import Mapped, declarative_base, mapped_column
 
-DB_URL = os.getenv("DB_URL")
-if DB_URL is None:
-    raise ValueError("DB_URL не обьявлена в окружении")
+if not DB_URL:
+    raise print("DB_URL was not found")
 
 engine = create_async_engine(DB_URL, echo=False)
 AsyncSessionLocal: Callable[..., AsyncSession] = async_sessionmaker(

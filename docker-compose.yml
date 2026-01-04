@@ -1,0 +1,76 @@
+name: ytkeeper
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: ytkeeper_db
+    
+    environment:
+      POSTGRES_USER: ${DB_USER:?DB_USER required}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD required}
+      POSTGRES_DB: ${DB_NAME:?DB_NAME required}
+      # Дополнительные параметры
+      POSTGRES_INITDB_ARGS: "-c shared_buffers=256MB -c max_connections=200"
+    
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      # опционально: для инициализации при первом запуске
+      # - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    
+    networks:
+      - ytkeeper_network
+    
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ytkeeper_api
+    environment:
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      DB_URL: postgresql+asyncpg://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
+      URL: http://nginx:80
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - .:/app
+      - /app/__pycache__
+    networks:
+      - ytkeeper_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/docs"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  nginx:
+    image: nginx:alpine
+    container_name: ytkeeper_nginx
+    ports:
+      - "3000:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - api
+    networks:
+      - ytkeeper_network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  ytkeeper_network:
+    driver: bridge
